@@ -31,7 +31,7 @@ class ProductController
             'edition' => trim($data['edition'] ?? ''),
             'price' => (float)($data['price'] ?? 0),
             'stock_quantity' => (int)($data['stock_quantity'] ?? 0),
-            'image_url' => trim($data['image_url'] ?? ''),
+            'image_url' => isset($data['image_url']) ? trim($data['image_url']) : null,
             'version_status' => $data['version_status'] ?? 'available'
         ];
     }

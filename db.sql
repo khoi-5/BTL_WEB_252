@@ -418,7 +418,7 @@ INSERT INTO product_versions
 (product_id, sku, version_name, format_type, language, cover_type, edition, price, stock_quantity, image_url, version_status)
 VALUES
 -- Product 1: Clean Code
-(1, 'P001-V01', 'Paperback - Vietnamese', 'paperback', 'Vietnamese', 'Soft Cover', '1st Edition', 120000, 50, 'uploads/products/product_1777914553_9111.jpg', 'available'),
+(1, 'P001-V01', 'Paperback - Vietnamese', 'paperback', 'Vietnamese', 'Soft Cover', '1st Edition', 120000, 50, NULL, 'available'),
 (1, 'P001-V02', 'Hardcover - English', 'hardcover', 'English', 'Hard Cover', '1st Edition', 250000, 20, NULL, 'available'),
 (1, 'P001-V03', 'eBook - English', 'ebook', 'English', NULL, 'Digital Edition', 90000, 999, NULL, 'available'),
 
@@ -463,7 +463,7 @@ VALUES
 (9, 'P009-V03', 'Hardcover - Japanese', 'hardcover', 'Japanese', 'Hard Cover', 'Japanese Edition', 260000, 10, NULL, 'available'),
 
 -- Product 10: Harry Potter and the Sorcerer''s Stone
-(10, 'P010-V01', 'Paperback - Vietnamese', 'paperback', 'Vietnamese', 'Soft Cover', 'Vietnamese Edition', 150000, 80, NULL, 'available'),
+(10, 'P010-V01', 'Paperback - Vietnamese', 'paperback', 'Vietnamese', 'Soft Cover', 'Vietnamese Edition', 150000, 80, 'uploads/products/product_1777948991_4176.jpg', 'available'),
 (10, 'P010-V02', 'Paperback - English', 'paperback', 'English', 'Soft Cover', 'English Edition', 220000, 45, NULL, 'available'),
 (10, 'P010-V03', 'Hardcover - English', 'hardcover', 'English', 'Hard Cover', 'Illustrated Edition', 450000, 12, NULL, 'available');
 

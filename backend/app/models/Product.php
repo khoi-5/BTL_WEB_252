@@ -3,10 +3,90 @@
 class Product
 {
     private $conn;
+    private $defaultImage = "uploads/products/no_img.jpg";
 
     public function __construct($conn)
     {
         $this->conn = $conn;
+    }
+
+    private function publicPath($relativePath)
+    {
+        return realpath(__DIR__ . "/../../public") . "/" . ltrim($relativePath, "/");
+    }
+
+    private function normalizeImageUrl($imageUrl)
+    {
+        $imageUrl = trim($imageUrl ?? "");
+
+        if ($imageUrl === "") {
+            return $this->defaultImage;
+        }
+
+        $path = $this->publicPath($imageUrl);
+
+        error_log($path);
+
+        if (file_exists($path)) {
+            return $imageUrl;
+        }
+
+        return $this->defaultImage;
+    }
+
+    private function deleteImageFile($imageUrl)
+    {
+        $imageUrl = trim($imageUrl ?? "");
+
+        if ($imageUrl === "" || $imageUrl === $this->defaultImage) {
+            return;
+        }
+
+        $path = $this->publicPath($imageUrl);
+
+        if (is_file($path)) {
+            unlink($path);
+        }
+    }
+
+    private function normalizeItem($item)
+    {
+        if (!$item) {
+            return false;
+        }
+
+        $item["image_url"] = $this->normalizeImageUrl($item["image_url"] ?? "");
+
+        return $item;
+    }
+
+    private function findRaw($versionId)
+    {
+        $stmt = $this->conn->prepare("
+            SELECT
+                pv.version_id,
+                pv.product_id,
+                pv.sku,
+                pv.version_name,
+                pv.format_type,
+                pv.language,
+                pv.cover_type,
+                pv.edition,
+                pv.price,
+                pv.stock_quantity,
+                pv.image_url,
+                pv.version_status,
+                p.product_name,
+                p.brand,
+                p.description
+            FROM product_versions pv
+            JOIN products p ON pv.product_id = p.product_id
+            WHERE pv.version_id = ?
+        ");
+
+        $stmt->execute([(int)$versionId]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getAll($keyword = '', $page = 1, $limit = 10)
@@ -47,7 +127,7 @@ class Product
                 pv.edition,
                 pv.price,
                 pv.stock_quantity,
-                COALESCE(NULLIF(pv.image_url, ''), 'uploads/products/no_img.jpg') AS image_url,
+                pv.image_url,
                 pv.version_status
             FROM product_versions pv
             JOIN products p ON pv.product_id = p.product_id
@@ -62,7 +142,12 @@ class Product
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$kw, $kw, $kw, $kw, $kw]);
+
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($items as &$item) {
+            $item = $this->normalizeItem($item);
+        }
 
         return [
             "items" => $items,
@@ -77,30 +162,7 @@ class Product
 
     public function find($versionId)
     {
-        $stmt = $this->conn->prepare("
-            SELECT
-                pv.version_id,
-                pv.product_id,
-                pv.sku,
-                pv.version_name,
-                pv.format_type,
-                pv.language,
-                pv.cover_type,
-                pv.edition,
-                pv.price,
-                pv.stock_quantity,
-                COALESCE(NULLIF(pv.image_url, ''), 'uploads/products/no_img.jpg') AS image_url,
-                pv.version_status,
-                p.product_name,
-                p.brand,
-                p.description
-            FROM product_versions pv
-            JOIN products p ON pv.product_id = p.product_id
-            WHERE pv.version_id = ?
-        ");
-
-        $stmt->execute([(int)$versionId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $this->normalizeItem($this->findRaw($versionId));
     }
 
     public function create($data)
@@ -122,11 +184,10 @@ class Product
             $productId = $this->conn->lastInsertId();
 
             $imageUrl = trim($data["image_url"] ?? "");
+
             if ($imageUrl === "") {
-                $imageUrl = "uploads/products/no_img.jpg";
+                $imageUrl = null;
             }
-
-
 
             $stmt = $this->conn->prepare("
                 INSERT INTO product_versions(
@@ -165,7 +226,7 @@ class Product
 
     public function update($versionId, $data)
     {
-        $old = $this->find($versionId);
+        $old = $this->findRaw($versionId);
 
         if (!$old) {
             return false;
@@ -189,25 +250,21 @@ class Product
                 $productId
             ]);
 
-            $imageUrl = trim($data["image_url"] ?? "");
-            if ($imageUrl === "") {
-                $imageUrl = "uploads/products/no_img.jpg";
+            $oldImage = trim($old["image_url"] ?? "");
+            $newImage = trim($data["image_url"] ?? "");
+
+            // Nếu admin không upload ảnh mới thì giữ ảnh cũ
+            if ($newImage === "") {
+                $newImage = $oldImage;
             }
 
+            // Nếu có ảnh mới khác ảnh cũ thì xóa ảnh cũ
+            if ($newImage !== $oldImage) {
+                $this->deleteImageFile($oldImage);
+            }
 
-            $oldImage = $old["image_url"] ?? "";
-            $newImage = $imageUrl;
-
-            if (
-                $newImage !== $oldImage &&
-                $oldImage !== "" &&
-                $oldImage !== "uploads/products/no_img.jpg"
-            ) {
-                $oldPath = __DIR__ . "/../../public/" . $oldImage;
-
-                if (is_file($oldPath)) {
-                    unlink($oldPath);
-                }
+            if ($newImage === "") {
+                $newImage = null;
             }
 
             $stmt = $this->conn->prepare("
@@ -234,7 +291,7 @@ class Product
                 $data["edition"],
                 $data["price"],
                 $data["stock_quantity"],
-                $imageUrl,
+                $newImage,
                 $data["version_status"],
                 (int)$versionId
             ]);
@@ -250,25 +307,10 @@ class Product
 
     public function delete($versionId)
     {
-        $old = $this->find($versionId);
+        $old = $this->findRaw($versionId);
 
         if ($old) {
-            $oldImage = $old["image_url"] ?? "";
-
-            if (
-                $oldImage !== "" &&
-                $oldImage !== "uploads/products/no_img.jpg"
-            ) {
-                $oldPath = __DIR__ . "/../../public/" . $oldImage;
-
-                if (!is_file($oldPath)) {
-                    $oldPath = __DIR__ . "/../../public/uploads/products/" . basename($oldImage);
-                }
-
-                if (is_file($oldPath)) {
-                    unlink($oldPath);
-                }
-            }
+            $this->deleteImageFile($old["image_url"] ?? "");
         }
 
         $stmt = $this->conn->prepare("
