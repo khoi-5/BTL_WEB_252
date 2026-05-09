@@ -50,12 +50,12 @@ function Register() {
       !isRequired(payload.password) ||
       !isRequired(payload.shipping_address)
     ) {
-      showToast("Vui lòng nhập đầy đủ thông tin bắt buộc.", "error");
+      showToast("Please fill in all required fields.", "error");
       return;
     }
 
     if (!isValidVietnamPhone(payload.phone)) {
-      showToast("SĐT tài khoản phải có 10 số và bắt đầu bằng 0.", "error");
+      showToast("Account phone number must have 10 digits and start with 0.", "error");
       return;
     }
 
@@ -63,13 +63,13 @@ function Register() {
       isRequired(payload.receiver_phone) &&
       !isValidVietnamPhone(payload.receiver_phone)
     ) {
-      showToast("SĐT người nhận phải có 10 số và bắt đầu bằng 0.", "error");
+      showToast("Receiver phone number must have 10 digits and start with 0.", "error");
       return;
     }
 
     if (!isValidPassword(payload.password)) {
       showToast(
-        `Mật khẩu phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự.`,
+        `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`,
         "error"
       );
       return;
@@ -87,11 +87,11 @@ function Register() {
       });
 
       if (!data.success) {
-        showToast(data.message || "Đăng ký thất bại.", "error");
+        showToast(data.message || "Registration failed.", "error");
         return;
       }
 
-      showToast("Đăng ký thành công. Vui lòng đăng nhập.", "success");
+      showToast("Registration successful. Please log in.", "success");
 
       setTimeout(() => {
         navigate("/login");
@@ -100,7 +100,7 @@ function Register() {
       showToast(
         err.response?.data?.message ||
           err.message ||
-          "Không kết nối được server.",
+          "Could not connect to the server.",
         "error"
       );
     }
@@ -112,13 +112,13 @@ function Register() {
         onSubmit={handleRegister}
         className="w-full max-w-md bg-white p-8 rounded-xl shadow"
       >
-        <h1 className="text-2xl font-bold text-center mb-6">Đăng ký</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
 
         <input
           name="full_name"
           className="w-full border rounded-lg px-4 py-2 mb-3"
           type="text"
-          placeholder="Họ tên"
+          placeholder="Full name"
           value={form.full_name}
           onChange={handleChange}
         />
@@ -136,7 +136,7 @@ function Register() {
           name="phone"
           className="w-full border rounded-lg px-4 py-2 mb-3"
           type="text"
-          placeholder="Số điện thoại tài khoản"
+          placeholder="Account phone number"
           value={form.phone}
           onChange={handleChange}
         />
@@ -145,7 +145,7 @@ function Register() {
           name="password"
           className="w-full border rounded-lg px-4 py-2 mb-3"
           type="password"
-          placeholder="Mật khẩu"
+          placeholder="Password"
           value={form.password}
           onChange={handleChange}
         />
@@ -154,7 +154,7 @@ function Register() {
           name="shipping_address"
           className="w-full border rounded-lg px-4 py-2 mb-3"
           type="text"
-          placeholder="Địa chỉ giao hàng"
+          placeholder="Shipping address"
           value={form.shipping_address}
           onChange={handleChange}
         />
@@ -163,7 +163,7 @@ function Register() {
           name="receiver_name"
           className="w-full border rounded-lg px-4 py-2 mb-3"
           type="text"
-          placeholder="Tên người nhận (không bắt buộc)"
+          placeholder="Receiver name (optional)"
           value={form.receiver_name}
           onChange={handleChange}
         />
@@ -172,7 +172,7 @@ function Register() {
           name="receiver_phone"
           className="w-full border rounded-lg px-4 py-2 mb-4"
           type="text"
-          placeholder="SĐT người nhận (không bắt buộc)"
+          placeholder="Receiver phone (optional)"
           value={form.receiver_phone}
           onChange={handleChange}
         />
@@ -181,7 +181,7 @@ function Register() {
           type="submit"
           className="w-full bg-slate-900 text-white rounded-lg py-2"
         >
-          Đăng ký
+          Register
         </button>
 
         <button
@@ -189,7 +189,7 @@ function Register() {
           onClick={() => navigate("/login")}
           className="w-full mt-4 text-blue-600 text-sm"
         >
-          Đã có tài khoản? Đăng nhập
+          Already have an account? Login
         </button>
       </form>
 

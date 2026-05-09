@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Cài đặt trang - Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/images/icon/logo.png">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/css/themify-icons.css">
+    <link rel="stylesheet" href="assets/css/metismenujs.min.css">
+    <link rel="stylesheet" href="assets/css/typography.css">
+    <link rel="stylesheet" href="assets/css/default-css.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+    <div id="preloader"><div class="loader"></div></div>
+    <div class="page-container">
+        <div class="sidebar-menu">
+            <div class="sidebar-header"><div class="logo"><a href="index.html"><img src="assets/images/icon/logo.png" alt="logo"></a></div></div>
+            <div class="main-menu"><div class="menu-inner"><nav>
+                <ul class="metismenu" id="menu">
+                    <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>Tài khoản</span></a></li>
+                    <li><a href="customers.html"><i class="fa-solid fa-users"></i><span>Khách hàng</span></a></li>
+                    <li><a href="contacts.html"><i class="fa-solid fa-envelope"></i><span>Liên hệ</span></a></li>
+                    <li><a href="faq.html"><i class="fa-solid fa-circle-question"></i><span>Hỏi đáp</span></a></li>
+                    <li><a href="categories.html"><i class="fa-solid fa-folder"></i><span>Danh mục</span></a></li>
+                    <li class="active"><a href="site-settings.html"><i class="fa-solid fa-gear"></i><span>Cài đặt</span></a></li>
+                    <li><a href="products.html"><i class="fa-solid fa-book"></i><span>Sản phẩm</span></a></li>
+                    <li><a href="orders.html"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a></li>
+                </ul>
+            </nav></div></div>
+        </div>
+        <div class="main-content">
+            <div class="header-area"><div class="row align-items-center">
+                <div class="col-md-6 col-sm-8 clearfix"><div class="nav-btn float-start"><span></span><span></span><span></span></div></div>
+            </div></div>
+            <div class="page-title-area"><div class="row align-items-center"><div class="col-sm-6">
+                <div class="breadcrumbs-area clearfix"><h1 class="page-title float-start">Cài đặt trang web</h1></div>
+            </div></div></div>
+
+            <div class="main-content-inner" id="main-content">
+                <div class="row mt-4" id="settingsContainer"></div>
+                <div class="row mt-3 mb-5">
+                    <div class="col-12">
+                        <button class="btn btn-primary btn-lg" onclick="saveAllSettings()">
+                            <i class="fa-solid fa-save"></i> Lưu tất cả thay đổi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer><div class="footer-area"><p>© 2026 BookStore Admin</p></div></footer>
+    </div>
+
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/metismenujs.min.js"></script>
+    <script src="assets/js/scripts.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        function getAdminId() { try { return JSON.parse(localStorage.getItem('admin')).admin_id; } catch(e) { return 1; } }
+
+        var groupLabels = {
+            general: 'Thông tin chung',
+            contact: 'Thông tin liên hệ',
+            seo: 'SEO / Meta',
+            social: 'Mạng xã hội',
+            payment: 'Thanh toán',
+            shipping: 'Vận chuyển'
+        };
+
+        function loadSettings() {
+            AdminAPI.settings.grouped().then(function(res) {
+                if (!res.success) return;
+                var groups = res.data;
+                var html = '';
+                for (var group in groups) {
+                    var label = groupLabels[group] || group;
+                    html += '<div class="col-md-6 mb-4"><div class="card"><div class="card-body">';
+                    html += '<h5 class="card-title mb-3"><i class="fa-solid fa-cog me-2"></i>' + label + '</h5>';
+                    var settings = groups[group];
+                    for (var key in settings) {
+                        var val = settings[key] || '';
+                        var isLong = val.length > 80;
+                        html += '<div class="mb-3"><label class="form-label fw-bold">' + key + '</label>';
+                        if (isLong) {
+                            html += '<textarea class="form-control setting-input" data-key="' + key + '" rows="3">' + val + '</textarea>';
+                        } else {
+                            html += '<input type="text" class="form-control setting-input" data-key="' + key + '" value="' + val.replace(/"/g, '&quot;') + '">';
+                        }
+                        html += '</div>';
+                    }
+                    html += '</div></div></div>';
+                }
+                document.getElementById('settingsContainer').innerHTML = html || '<div class="col-12"><p>Chưa có cài đặt nào</p></div>';
+            });
+        }
+
+        function saveAllSettings() {
+            var inputs = document.querySelectorAll('.setting-input');
+            var settings = {};
+            inputs.forEach(function(el) {
+                settings[el.dataset.key] = el.value;
+            });
+            AdminAPI.settings.update(settings, getAdminId()).then(function(res) {
+                if (res.success) {
+                    if (window.SRTdash) SRTdash.toast('Lưu cài đặt thành công!', 'success');
+                    loadSettings();
+                } else {
+                    alert(res.message);
+                }
+            });
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>

@@ -1,144 +1,131 @@
+import * as React from "react";
 
-import * as React from "react"
-import { NavLink } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import NavMenuLink from "@/components/other/navMenuLink";
 
-const components: { title: string; href: string; description: string }[] = [
-    {
-        title: "Alert Dialog",
-        href: "/docs/primitives/alert-dialog",
-        description:
-            "A modal dialog that interrupts the user with important content and expects a response.",
-    },
-    {
-        title: "Hover Card",
-        href: "/docs/primitives/hover-card",
-        description:
-            "For sighted users to preview content available behind a link.",
-    },
-    {
-        title: "Progress",
-        href: "/docs/primitives/progress",
-        description:
-            "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-    },
-    {
-        title: "Scroll-area",
-        href: "/docs/primitives/scroll-area",
-        description: "Visually or semantically separates content.",
-    },
-    {
-        title: "Tabs",
-        href: "/docs/primitives/tabs",
-        description:
-            "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-    },
-    {
-        title: "Tooltip",
-        href: "/docs/primitives/tooltip",
-        description:
-            "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-    },
-]
+const productLinks: { title: string; href: string; description: string }[] = [
+  {
+    title: "All Products",
+    href: "/products",
+    description: "Books, gadgets, and office supplies from the store API.",
+  },
+  {
+    title: "Flash Sales",
+    href: "/products",
+    description: "Active promotional campaigns and discounted products.",
+  },
+  {
+    title: "Collections",
+    href: "/products",
+    description: "Curated product sections managed by the admin team.",
+  },
+  {
+    title: "Cart",
+    href: "/cart",
+    description: "Review and update products before checkout.",
+  },
+];
+
+const supportLinks: { title: string; href: string; description: string }[] = [
+  {
+    title: "About",
+    href: "/about",
+    description: "Basic information about The Reader Bookstore.",
+  },
+  {
+    title: "FAQ",
+    href: "/faq",
+    description: "Common questions about orders, payment, and delivery.",
+  },
+  {
+    title: "Contact",
+    href: "/contact",
+    description: "Send a support message to the store.",
+  },
+];
 
 export function Navbar() {
-    return (
-        <nav className="hidden md:flex justify-center items-center ">
-            <NavigationMenu>
-                <NavigationMenuList>
-                    <NavigationMenuItem>
-                        <NavigationMenuLink asChild>
-                            <NavMenuLink name="HOME" />
-                        </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuTrigger>
-                            <NavigationMenuLink asChild>
-                                <NavMenuLink name="ABOUT US" to="/about" />
-                            </NavigationMenuLink>
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                            <ul className="w-96">
-                                <ListItem href="/docs" title="Introduction">
-                                    Re-usable components built with Tailwind CSS.
-                                </ListItem>
-                                <ListItem href="/docs/installation" title="Installation">
-                                    How to install dependencies and structure your app.
-                                </ListItem>
-                                <ListItem href="/docs/primitives/typography" title="Typography">
-                                    Styles for headings, paragraphs, lists...etc
-                                </ListItem>
-                            </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem className="">
-                        <NavigationMenuTrigger>
-                            <NavigationMenuLink asChild>
-                                <NavMenuLink name="PRODUCTS" to="/products" />
-                            </NavigationMenuLink>
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                            <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                                {components.map((component) => (
-                                    <ListItem
-                                        key={component.title}
-                                        title={component.title}
-                                        href={component.href}
-                                    >
-                                        {component.description}
-                                    </ListItem>
-                                ))}
-                            </ul>
-                        </NavigationMenuContent>
-                    </NavigationMenuItem>
+  return (
+    <nav className="hidden md:flex justify-center items-center">
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <NavMenuLink name="HOME" />
+            </NavigationMenuLink>
+          </NavigationMenuItem>
 
-                    <NavigationMenuItem>
-                        <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                            <NavigationMenuLink asChild>
-                                <NavMenuLink name="FAQs" to="/faq" />
-                            </NavigationMenuLink>
-                        </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                            <NavigationMenuLink asChild>
-                                <NavMenuLink name="CONTACT" to='/contact' />
-                            </NavigationMenuLink>
-                        </NavigationMenuLink>
-                    </NavigationMenuItem>
-                </NavigationMenuList>
-            </NavigationMenu>
-        </nav>
-    )
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <NavigationMenuLink asChild>
+                <NavMenuLink name="PRODUCTS" to="/products" />
+              </NavigationMenuLink>
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[420px] gap-2 p-2 md:w-[560px] md:grid-cols-2">
+                {productLinks.map((item) => (
+                  <ListItem key={item.title} title={item.title} href={item.href}>
+                    {item.description}
+                  </ListItem>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <NavigationMenuLink asChild>
+                <NavMenuLink name="ABOUT US" to="/about" />
+              </NavigationMenuLink>
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="w-96 p-2">
+                {supportLinks.map((item) => (
+                  <ListItem key={item.title} title={item.title} href={item.href}>
+                    {item.description}
+                  </ListItem>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <NavMenuLink name="FAQs" to="/faq" />
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <NavMenuLink name="CONTACT" to="/contact" />
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    </nav>
+  );
 }
 
 function ListItem({
-    title,
-    children,
-    href,
-    ...props
+  title,
+  children,
+  href,
+  ...props
 }: React.ComponentPropsWithoutRef<"li"> & { href: string }) {
-    return (
-        <li {...props}>
-            <NavigationMenuLink asChild>
-                {/* <Link href={href}> */}
-                <div className="flex flex-col gap-1 text-sm">
-                    <div className="leading-none font-medium">{title}</div>
-                    <div className="line-clamp-2 text-muted-foreground">{children}</div>
-                </div>
-                {/* </Link> */}
-            </NavigationMenuLink>
-        </li>
-    )
+  return (
+    <li {...props}>
+      <NavigationMenuLink href={href} className="block rounded-md p-3 hover:bg-blue-50">
+        <div className="text-sm font-semibold leading-none text-slate-900">{title}</div>
+        <div className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">{children}</div>
+      </NavigationMenuLink>
+    </li>
+  );
 }

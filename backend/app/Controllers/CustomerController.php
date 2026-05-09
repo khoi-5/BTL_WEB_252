@@ -274,4 +274,97 @@ class CustomerController
             ], JSON_UNESCAPED_UNICODE);
         }
     }
+
+    // Upload avatar for customer or admin
+    public function uploadAvatar()
+    {
+        try {
+            $userId = $_POST["user_id"] ?? null;
+
+            if (!$userId) {
+                http_response_code(400);
+                echo json_encode(["success" => false, "message" => "Thiếu user_id"]);
+                return;
+            }
+
+            if (!isset($_FILES["avatar"]) || $_FILES["avatar"]["error"] !== UPLOAD_ERR_OK) {
+                http_response_code(400);
+                echo json_encode(["success" => false, "message" => "Chưa chọn ảnh đại diện"]);
+                return;
+            }
+
+            $file = $_FILES["avatar"];
+            $allowedExt = ["jpg", "jpeg", "png", "webp"];
+            $ext = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
+
+            if (!in_array($ext, $allowedExt, true)) {
+                http_response_code(422);
+                echo json_encode(["success" => false, "message" => "Chỉ cho phép JPG, PNG, WEBP"]);
+                return;
+            }
+
+            // Max 2MB
+            if ($file["size"] > 2 * 1024 * 1024) {
+                http_response_code(422);
+                echo json_encode(["success" => false, "message" => "Ảnh không được vượt quá 2MB"]);
+                return;
+            }
+
+            $uploadDir = __DIR__ . "/../../public/uploads/avatars/";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $fileName = "avatar_" . $userId . "_" . time() . "." . $ext;
+            $targetPath = $uploadDir . $fileName;
+
+            if (!move_uploaded_file($file["tmp_name"], $targetPath)) {
+                http_response_code(500);
+                echo json_encode(["success" => false, "message" => "Không thể lưu ảnh"]);
+                return;
+            }
+
+            $avatarPath = "uploads/avatars/" . $fileName;
+            $this->userModel->updateAvatar((int)$userId, $avatarPath);
+
+            echo json_encode([
+                "success" => true,
+                "message" => "Cập nhật avatar thành công",
+                "data" => ["avatar" => $avatarPath]
+            ]);
+
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+        }
+    }
+
+    // Admin: reset customer password
+    public function resetPassword()
+    {
+        try {
+            $data = json_decode(file_get_contents("php://input"), true);
+
+            $customerId = $data["customer_id"] ?? null;
+            $adminId = $data["admin_id"] ?? null;
+
+            if (!$customerId || !$adminId) {
+                http_response_code(400);
+                echo json_encode(["success" => false, "message" => "Thiếu customer_id hoặc admin_id"]);
+                return;
+            }
+
+            $result = $this->userModel->resetCustomerPassword((int)$customerId, (int)$adminId);
+
+            if (!$result["success"]) {
+                http_response_code(403);
+            }
+
+            echo json_encode($result, JSON_UNESCAPED_UNICODE);
+
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+        }
+    }
 }

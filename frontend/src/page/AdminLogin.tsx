@@ -25,10 +25,10 @@ function AdminLogin() {
         login(data.data);
         navigate("/admin");
       } else {
-        setError(data.message || "Đăng nhập admin thất bại");
+        setError(data.message || "Admin login failed");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Không kết nối được server");
+      setError(err.response?.data?.message || "Could not connect to the server");
     }
   };
 
@@ -39,7 +39,7 @@ function AdminLogin() {
 
         <input
           className="w-full border rounded-lg px-4 py-2 mb-4"
-          placeholder="Email hoặc số điện thoại"
+          placeholder="Email or phone number"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
         />
@@ -47,7 +47,7 @@ function AdminLogin() {
         <input
           className="w-full border rounded-lg px-4 py-2 mb-4"
           type="password"
-          placeholder="Mật khẩu"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -55,7 +55,7 @@ function AdminLogin() {
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         <button className="w-full bg-slate-900 text-white rounded-lg py-2">
-          Đăng nhập Admin
+          Admin Login
         </button>
       </form>
     </div>

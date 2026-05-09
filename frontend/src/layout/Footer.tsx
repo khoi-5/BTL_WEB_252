@@ -1,70 +1,104 @@
-import React from 'react'
-import myLogo from '../assets/Logo.svg'
-import { Mail, Phone, MapPin } from 'lucide-react'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Mail, MapPin, Phone } from "lucide-react";
+
+import myLogo from "../assets/Logo.svg";
+import { getSiteSettingsApi } from "@/apis/siteApi";
+
+type Settings = Record<string, string>;
+
 function Footer() {
-    return (
-        <footer className='bg-(--color-dark) text-white px-6 md:px-10 py-12'>
-            {/* Grid layout: 1 cột trên mobile, 5 cột trên desktop */}
-            <div className='max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8'>
+  const [settings, setSettings] = useState<Settings>({});
 
-                {/* Cột 1: Thông tin liên hệ (Chiếm 2 cột trên desktop) */}
-                <div className='md:col-span-2 flex flex-col items-center md:items-start gap-4'>
-                    <img src={myLogo} alt="The Reader Logo" className='mx-auto h-40 w-auto mb-2' />
+  useEffect(() => {
+    getSiteSettingsApi()
+      .then((res) => {
+        if (res.success) setSettings(res.data || {});
+      })
+      .catch(() => undefined);
+  }, []);
 
-                    <div className='space-y-3 mx-auto text-sm text-gray-300'>
-                        <div className='flex items-start gap-3'>
-                            <MapPin size={18} className="shrink-0 text-(--color-brand)" />
-                            <span><span className='font-bold text-white'>Address:</span> 268 Ly Thuong Kiet Street, District 10, HCMC</span>
-                        </div>
-                        <div className='flex items-center gap-3'>
-                            <Phone size={18} className="shrink-0 text-(--color-brand)" />
-                            <span><span className='font-bold text-white'>Phone:</span> +84 12345 6789</span>
-                        </div>
-                        <div className='flex items-center gap-3'>
-                            <Mail size={18} className="shrink-0 text-(--color-brand)" />
-                            <span><span className='font-bold text-white'>Email:</span> thereader@hcmut.edu.vn</span>
-                        </div>
-                    </div>
-                </div>
+  const address = settings.contact_address || "268 Ly Thuong Kiet Street, District 10, HCMC";
+  const phone = settings.contact_phone || "+84 12345 6789";
+  const email = settings.contact_email || "support@store.com";
+  const siteName = settings.site_name || "THE READER";
 
-                {/* Cột 2: About Us */}
-                <div className='flex flex-col gap-4'>
-                    <h4 className='font-bold text-lg uppercase tracking-wider'>About Us</h4>
-                    <ul className='space-y-2 text-sm text-gray-400'>
-                        <li className='hover:text-white cursor-pointer transition-colors'>Our Story</li>
-                        <li className='hover:text-white cursor-pointer transition-colors'>Team</li>
-                        <li className='hover:text-white cursor-pointer transition-colors'>Careers</li>
-                    </ul>
-                </div>
+  return (
+    <footer className="bg-(--color-dark) px-6 py-12 text-white md:px-10">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-5">
+        <div className="flex flex-col items-center gap-4 md:col-span-2 md:items-start">
+          <img src={myLogo} alt={`${siteName} Logo`} className="mx-auto mb-2 h-40 w-auto" />
 
-                {/* Cột 3: Products */}
-                <div className='flex flex-col gap-4'>
-                    <h4 className='font-bold text-lg uppercase tracking-wider'>Products</h4>
-                    <ul className='space-y-2 text-sm text-gray-400'>
-                        <li className='hover:text-white cursor-pointer transition-colors'>New Arrivals</li>
-                        <li className='hover:text-white cursor-pointer transition-colors'>Best Sellers</li>
-                        <li className='hover:text-white cursor-pointer transition-colors'>Sale</li>
-                    </ul>
-                </div>
-
-                {/* Cột 4: Support */}
-                <div className='flex flex-col gap-4'>
-                    <h4 className='font-bold text-lg uppercase tracking-wider'>Support</h4>
-                    <ul className='space-y-2 text-sm text-gray-400'>
-                        <li className='hover:text-white cursor-pointer transition-colors'>FAQs</li>
-                        <li className='hover:text-white cursor-pointer transition-colors'>Contact</li>
-                        <li className='hover:text-white cursor-pointer transition-colors'>Shipping</li>
-                    </ul>
-                </div>
-
+          <div className="mx-auto space-y-3 text-sm text-gray-300">
+            <div className="flex items-start gap-3">
+              <MapPin size={18} className="text-(--color-brand) shrink-0" />
+              <span>
+                <span className="font-bold text-white">Address:</span> {address}
+              </span>
             </div>
-
-            {/* Bottom Bar: Bản quyền */}
-            <div className='mt-12 pt-8  text-center text-xs text-gray-500'>
-                © {new Date().getFullYear()} THE READER. All rights reserved.
+            <div className="flex items-center gap-3">
+              <Phone size={18} className="text-(--color-brand) shrink-0" />
+              <span>
+                <span className="font-bold text-white">Phone:</span> {phone}
+              </span>
             </div>
-        </footer>
-    )
+            <div className="flex items-center gap-3">
+              <Mail size={18} className="text-(--color-brand) shrink-0" />
+              <span>
+                <span className="font-bold text-white">Email:</span> {email}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <FooterColumn
+          title="About Us"
+          links={[
+            ["Our Story", "/about"],
+            ["Customer Support", "/contact"],
+            ["FAQ", "/faq"],
+          ]}
+        />
+        <FooterColumn
+          title="Products"
+          links={[
+            ["All Products", "/products"],
+            ["Flash Sales", "/products"],
+            ["Cart", "/cart"],
+          ]}
+        />
+        <FooterColumn
+          title="Account"
+          links={[
+            ["Profile", "/profile"],
+            ["Orders", "/orders"],
+            ["Login", "/login"],
+          ]}
+        />
+      </div>
+
+      <div className="mt-12 pt-8 text-center text-xs text-gray-400">
+        © {new Date().getFullYear()} {siteName}. All rights reserved.
+      </div>
+    </footer>
+  );
 }
 
-export default Footer
+function FooterColumn({ title, links }: { title: string; links: [string, string][] }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <h4 className="text-lg font-bold uppercase tracking-wider">{title}</h4>
+      <ul className="space-y-2 text-sm text-gray-400">
+        {links.map(([label, to]) => (
+          <li key={label}>
+            <Link to={to} className="transition-colors hover:text-white">
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default Footer;

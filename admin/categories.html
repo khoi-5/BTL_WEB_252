@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Quản lý danh mục - Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/images/icon/logo.png">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/css/themify-icons.css">
+    <link rel="stylesheet" href="assets/css/metismenujs.min.css">
+    <link rel="stylesheet" href="assets/css/typography.css">
+    <link rel="stylesheet" href="assets/css/default-css.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+    <div id="preloader"><div class="loader"></div></div>
+    <div class="page-container">
+        <div class="sidebar-menu">
+            <div class="sidebar-header"><div class="logo"><a href="index.html"><img src="assets/images/icon/logo.png" alt="logo"></a></div></div>
+            <div class="main-menu"><div class="menu-inner"><nav>
+                <ul class="metismenu" id="menu">
+                    <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>Tài khoản</span></a></li>
+                    <li><a href="customers.html"><i class="fa-solid fa-users"></i><span>Khách hàng</span></a></li>
+                    <li><a href="contacts.html"><i class="fa-solid fa-envelope"></i><span>Liên hệ</span></a></li>
+                    <li><a href="faq.html"><i class="fa-solid fa-circle-question"></i><span>Hỏi đáp</span></a></li>
+                    <li class="active"><a href="categories.html"><i class="fa-solid fa-folder"></i><span>Danh mục</span></a></li>
+                    <li><a href="site-settings.html"><i class="fa-solid fa-gear"></i><span>Cài đặt</span></a></li>
+                    <li><a href="products.html"><i class="fa-solid fa-book"></i><span>Sản phẩm</span></a></li>
+                    <li><a href="orders.html"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a></li>
+                </ul>
+            </nav></div></div>
+        </div>
+        <div class="main-content">
+            <div class="header-area"><div class="row align-items-center">
+                <div class="col-md-6 col-sm-8 clearfix"><div class="nav-btn float-start"><span></span><span></span><span></span></div></div>
+            </div></div>
+            <div class="page-title-area"><div class="row align-items-center"><div class="col-sm-6">
+                <div class="breadcrumbs-area clearfix"><h1 class="page-title float-start">Quản lý danh mục</h1></div>
+            </div></div></div>
+            <div class="main-content-inner" id="main-content">
+                <div class="row mt-4">
+                    <div class="col-md-5">
+                        <div class="card"><div class="card-body">
+                            <h5>Thêm / Sửa danh mục</h5>
+                            <input type="hidden" id="editId">
+                            <div class="mb-3"><label class="form-label">Tên danh mục *</label><input type="text" class="form-control" id="catName"></div>
+                            <div class="mb-3"><label class="form-label">Danh mục cha</label>
+                                <select class="form-select" id="parentCat"><option value="">-- Không có --</option></select>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveCategory()">Lưu</button>
+                            <button class="btn btn-secondary" onclick="resetForm()">Hủy</button>
+                        </div></div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card"><div class="card-body">
+                            <h5>Danh sách danh mục</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead><tr><th>#</th><th>Tên</th><th>Danh mục cha</th><th>Thao tác</th></tr></thead>
+                                    <tbody id="catBody"></tbody>
+                                </table>
+                            </div>
+                        </div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer><div class="footer-area"><p>© 2026 BookStore Admin</p></div></footer>
+    </div>
+
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/metismenujs.min.js"></script>
+    <script src="assets/js/scripts.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        var allCats = [];
+
+        function loadCategories() {
+            AdminAPI.categories.listPublic().then(function(res) {
+                if (!res.success) return;
+                allCats = res.data;
+                var html = '';
+                allCats.forEach(function(c) {
+                    html += '<tr><td>' + c.category_id + '</td><td>' + c.category_name + '</td>' +
+                        '<td>' + (c.parent_name || '-') + '</td>' +
+                        '<td><button class="btn btn-sm btn-warning" onclick="editCat(' + c.category_id + ')"><i class="fa-solid fa-edit"></i></button> ' +
+                        '<button class="btn btn-sm btn-danger" onclick="deleteCat(' + c.category_id + ')"><i class="fa-solid fa-trash"></i></button></td></tr>';
+                });
+                document.getElementById('catBody').innerHTML = html || '<tr><td colspan="4" class="text-center">Chưa có danh mục</td></tr>';
+                // Update parent select
+                var sel = '<option value="">-- Không có --</option>';
+                allCats.forEach(function(c) { sel += '<option value="'+c.category_id+'">'+c.category_name+'</option>'; });
+                document.getElementById('parentCat').innerHTML = sel;
+            });
+        }
+
+        function saveCategory() {
+            var id = document.getElementById('editId').value;
+            var name = document.getElementById('catName').value.trim();
+            var parentId = document.getElementById('parentCat').value || null;
+            if (!name) { alert('Nhập tên danh mục'); return; }
+            var p = id ? AdminAPI.categories.update(id, name, parentId) : AdminAPI.categories.create(name, parentId);
+            p.then(function(res) {
+                if (res.success) { resetForm(); loadCategories(); if(window.SRTdash) SRTdash.toast('Lưu thành công','success'); }
+                else alert(res.message);
+            });
+        }
+
+        function editCat(id) {
+            var c = allCats.find(function(x){return x.category_id == id;});
+            if (!c) return;
+            document.getElementById('editId').value = c.category_id;
+            document.getElementById('catName').value = c.category_name;
+            document.getElementById('parentCat').value = c.parent_category_id || '';
+        }
+
+        function deleteCat(id) {
+            if (!confirm('Xóa danh mục này?')) return;
+            AdminAPI.categories.remove(id).then(function(res) {
+                if (res.success) { loadCategories(); if(window.SRTdash) SRTdash.toast('Đã xóa','success'); }
+                else alert(res.message);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('catName').value = '';
+            document.getElementById('parentCat').value = '';
+        }
+
+        loadCategories();
+    </script>
+</body>
+</html>

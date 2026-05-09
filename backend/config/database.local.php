@@ -1,6 +1,6 @@
 <?php
 
 $host = "127.0.0.1";
-$dbname = "web";
+$dbname = "web_btl";
 $username = "root";
-$password = "12345";
+$password = "Dophukhang1309";

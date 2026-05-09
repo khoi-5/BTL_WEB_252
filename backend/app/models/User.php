@@ -54,15 +54,14 @@ class User
 
         try {
             $sqlUser = "INSERT INTO users 
-                (full_name, email, password_hash, phone)
+                (full_name, email, password_hash, user_role, phone)
                 VALUES 
-                (:full_name, :email, :password_hash, :phone)";
+                (:full_name, :email, :password_hash, 'customer', :phone)";
 
             $stmtUser = $this->conn->prepare($sqlUser);
             $stmtUser->execute([
                 ":full_name" => $data["full_name"],
                 ":email" => $data["email"],
-                // ":password_hash" => password_hash($data["password"], PASSWORD_DEFAULT),
                 ":password_hash" => $data["password_hash"],
                 ":phone" => $data["phone"]
             ]);
@@ -106,6 +105,7 @@ class User
                 u.full_name,
                 u.email,
                 u.phone,
+                u.avatar,
                 u.created_at,
                 u.updated_at,
                 c.customer_id,
@@ -133,6 +133,7 @@ class User
                 u.full_name,
                 u.email,
                 u.phone,
+                u.avatar,
                 u.created_at,
                 u.updated_at,
                 a.admin_id,
@@ -320,6 +321,50 @@ class User
             "message" => $status === 1
                 ? "Mở khóa khách hàng thành công"
                 : "Ban khách hàng thành công"
+        ];
+    }
+
+    // Update user avatar
+    public function updateAvatar($userId, $avatarPath)
+    {
+        $stmt = $this->conn->prepare("UPDATE users SET avatar = ? WHERE user_id = ?");
+        return $stmt->execute([$avatarPath, (int)$userId]);
+    }
+
+    // Get user avatar
+    public function getAvatar($userId)
+    {
+        $stmt = $this->conn->prepare("SELECT avatar FROM users WHERE user_id = ?");
+        $stmt->execute([(int)$userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['avatar'] : null;
+    }
+
+    // Admin: reset customer password
+    public function resetCustomerPassword($customerId, $adminId)
+    {
+        if (!$this->isSuperAdmin($adminId)) {
+            return [
+                "success" => false,
+                "message" => "Không đủ thẩm quyền"
+            ];
+        }
+
+        $customer = $this->findCustomerById($customerId);
+        if (!$customer) {
+            return [
+                "success" => false,
+                "message" => "Không tìm thấy khách hàng"
+            ];
+        }
+
+        // Reset to default password: "123456"
+        $defaultHash = password_hash("123456", PASSWORD_DEFAULT);
+        $this->updatePassword($customerId, $defaultHash);
+
+        return [
+            "success" => true,
+            "message" => "Đã reset mật khẩu về 123456"
         ];
     }
 }

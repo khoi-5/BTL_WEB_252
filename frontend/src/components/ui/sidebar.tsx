@@ -27,7 +27,6 @@ import { MenuIcon } from "lucide-react"
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
@@ -181,7 +180,7 @@ function Sidebar({
         {/* Header ẩn để hỗ trợ Screen Reader (tốt cho SEO/Accessibility) */}
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>
-          <SheetDescription>Mô tả menu điều hướng</SheetDescription>
+          <SheetDescription>Navigation menu</SheetDescription>
         </SheetHeader>
 
         <div className="flex h-full w-full flex-col">

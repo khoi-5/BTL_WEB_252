@@ -17,15 +17,15 @@ function Orders() {
   const [loading, setLoading] = useState(false);
 
   const formatPrice = (price: number) => {
-    return Number(price).toLocaleString("vi-VN") + " VNĐ";
+    return Number(price).toLocaleString("vi-VN") + " VND";
   };
 
   const statusText: Record<OrderStatus, string> = {
-    pending: "Chờ thanh toán",
-    confirmed: "Đã xác nhận thanh toán",
-    shipping: "Đang giao hàng",
-    delivered: "Đã nhận hàng",
-    cancelled: "Đã hủy",
+    pending: "Awaiting Payment",
+    confirmed: "Payment Confirmed",
+    shipping: "Shipping",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
   };
 
   const statusClass: Record<OrderStatus, string> = {
@@ -45,14 +45,14 @@ function Orders() {
       const res = await getCustomerOrdersApi(user.user_id);
 
       if (!res.success) {
-        showToast(res.message || "Không lấy được danh sách đơn hàng.", "error");
+        showToast(res.message || "Could not load orders.", "error");
         return;
       }
 
       setOrders(res.data || []);
     } catch (err: any) {
       showToast(
-        err.response?.data?.message || "Không kết nối được server.",
+        err.response?.data?.message || "Could not connect to the server.",
         "error"
       );
     } finally {
@@ -70,28 +70,28 @@ function Orders() {
     const res = await customerConfirmPaymentApi(orderId, user.user_id);
 
     if (!res.success) {
-      showToast(res.message || "Xác nhận thanh toán thất bại.", "error");
+      showToast(res.message || "Could not confirm payment.", "error");
       return;
     }
 
-    showToast("Xác nhận thanh toán thành công.", "success");
+    showToast("Payment confirmed.", "success");
     loadOrders();
   };
 
   const handleCancelOrder = async (orderId: number) => {
     if (!user?.user_id) return;
 
-    const ok = window.confirm("Bạn chắc chắn muốn hủy đơn hàng này?");
+    const ok = window.confirm("Are you sure you want to cancel this order?");
     if (!ok) return;
 
     const res = await customerCancelOrderApi(orderId, user.user_id);
 
     if (!res.success) {
-      showToast(res.message || "Hủy đơn thất bại.", "error");
+      showToast(res.message || "Could not cancel this order.", "error");
       return;
     }
 
-    showToast("Đã hủy đơn hàng.", "success");
+    showToast("Order cancelled.", "success");
     loadOrders();
   };
 
@@ -101,11 +101,11 @@ function Orders() {
     const res = await customerConfirmDeliveredApi(orderId, user.user_id);
 
     if (!res.success) {
-      showToast(res.message || "Xác nhận nhận hàng thất bại.", "error");
+      showToast(res.message || "Could not confirm delivery.", "error");
       return;
     }
 
-    showToast("Đã xác nhận nhận hàng.", "success");
+    showToast("Delivery confirmed.", "success");
     loadOrders();
   };
 
@@ -113,7 +113,7 @@ function Orders() {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow p-8">
-          Vui lòng đăng nhập để xem đơn hàng.
+          Please log in to view your orders.
         </div>
       </div>
     );
@@ -122,15 +122,15 @@ function Orders() {
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Đơn hàng của tôi</h1>
+        <h1 className="text-3xl font-bold mb-6">My Orders</h1>
 
         {loading ? (
           <div className="bg-white rounded-xl shadow p-8 text-center">
-            Đang tải đơn hàng...
+            Loading orders...
           </div>
         ) : orders.length === 0 ? (
           <div className="bg-white rounded-xl shadow p-8 text-center">
-            Bạn chưa có đơn hàng nào.
+            You do not have any orders yet.
           </div>
         ) : (
           <div className="space-y-5">
@@ -139,10 +139,10 @@ function Orders() {
                 <div className="p-5 border-b flex justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-bold">
-                      Đơn hàng #{order.order_id}
+                      Order #{order.order_id}
                     </h2>
                     <p className="text-slate-600">
-                      Ngày đặt: {order.order_date}
+                      Order date: {order.order_date}
                     </p>
                   </div>
 
@@ -158,13 +158,13 @@ function Orders() {
                 <div className="p-5">
                   <div className="mb-4">
                     <p>
-                      <b>Người nhận:</b> {order.receiver_name}
+                      <b>Receiver:</b> {order.receiver_name}
                     </p>
                     <p>
-                      <b>SĐT:</b> {order.receiver_phone}
+                      <b>Phone:</b> {order.receiver_phone}
                     </p>
                     <p>
-                      <b>Địa chỉ:</b> {order.shipping_address}
+                      <b>Address:</b> {order.shipping_address}
                     </p>
                   </div>
 
@@ -172,11 +172,11 @@ function Orders() {
                     <table className="w-full text-left">
                       <thead className="bg-slate-100">
                         <tr>
-                          <th className="p-3">Sản phẩm</th>
-                          <th className="p-3">Phiên bản</th>
-                          <th className="p-3">Giá</th>
+                          <th className="p-3">Product</th>
+                          <th className="p-3">Version</th>
+                          <th className="p-3">Price</th>
                           <th className="p-3">SL</th>
-                          <th className="p-3">Tạm tính</th>
+                          <th className="p-3">Subtotal</th>
                         </tr>
                       </thead>
 
@@ -204,7 +204,7 @@ function Orders() {
 
                   <div className="mt-5 flex justify-between items-center">
                     <div className="text-xl font-bold">
-                      Tổng tiền: {formatPrice(order.total_amount)}
+                      Total: {formatPrice(order.total_amount)}
                     </div>
 
                     <div className="flex gap-2">
@@ -216,14 +216,14 @@ function Orders() {
                             }
                             className="bg-blue-600 text-white px-4 py-2 rounded-lg"
                           >
-                            Xác nhận thanh toán
+                            Confirm Payment
                           </button>
 
                           <button
                             onClick={() => handleCancelOrder(order.order_id)}
                             className="bg-red-600 text-white px-4 py-2 rounded-lg"
                           >
-                            Hủy đơn
+                            Cancel Order
                           </button>
                         </>
                       )}
@@ -235,7 +235,7 @@ function Orders() {
                           }
                           className="bg-green-600 text-white px-4 py-2 rounded-lg"
                         >
-                          Đã nhận hàng
+                          Mark as Delivered
                         </button>
                       )}
                     </div>

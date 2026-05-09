@@ -25,8 +25,6 @@ class Product
 
         $path = $this->publicPath($imageUrl);
 
-        error_log($path);
-
         if (file_exists($path)) {
             return $imageUrl;
         }

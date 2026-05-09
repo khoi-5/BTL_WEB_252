@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Quản lý liên hệ - Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/images/icon/logo.png">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/css/themify-icons.css">
+    <link rel="stylesheet" href="assets/css/metismenujs.min.css">
+    <link rel="stylesheet" href="assets/css/typography.css">
+    <link rel="stylesheet" href="assets/css/default-css.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+    <div id="preloader"><div class="loader"></div></div>
+    <div class="page-container">
+        <!-- sidebar -->
+        <div class="sidebar-menu">
+            <div class="sidebar-header"><div class="logo"><a href="index.html"><img src="assets/images/icon/logo.png" alt="logo"></a></div></div>
+            <div class="main-menu"><div class="menu-inner"><nav>
+                <ul class="metismenu" id="menu">
+                    <li><a href="profile.html"><i class="fa-solid fa-user"></i><span>Tài khoản</span></a></li>
+                    <li><a href="customers.html"><i class="fa-solid fa-users"></i><span>Khách hàng</span></a></li>
+                    <li class="active"><a href="contacts.html"><i class="fa-solid fa-envelope"></i><span>Liên hệ</span></a></li>
+                    <li><a href="faq.html"><i class="fa-solid fa-circle-question"></i><span>Hỏi đáp</span></a></li>
+                    <li><a href="categories.html"><i class="fa-solid fa-folder"></i><span>Danh mục</span></a></li>
+                    <li><a href="site-settings.html"><i class="fa-solid fa-gear"></i><span>Cài đặt</span></a></li>
+                    <li><a href="products.html"><i class="fa-solid fa-book"></i><span>Sản phẩm</span></a></li>
+                    <li><a href="orders.html"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a></li>
+                </ul>
+            </nav></div></div>
+        </div>
+        <!-- main content -->
+        <div class="main-content">
+            <div class="header-area"><div class="row align-items-center">
+                <div class="col-md-6 col-sm-8 clearfix"><div class="nav-btn float-start"><span></span><span></span><span></span></div></div>
+            </div></div>
+            <div class="page-title-area"><div class="row align-items-center"><div class="col-sm-6">
+                <div class="breadcrumbs-area clearfix">
+                    <h1 class="page-title float-start">Quản lý liên hệ</h1>
+                </div>
+            </div></div></div>
+
+            <div class="main-content-inner" id="main-content">
+                <!-- Search & Filter -->
+                <div class="row mt-4">
+                    <div class="col-md-5">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Tìm theo tên, email...">
+                    </div>
+                    <div class="col-md-3">
+                        <select id="statusFilter" class="form-select">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="new">Mới</option>
+                            <option value="in_progress">Đang xử lý</option>
+                            <option value="replied">Đã phản hồi</option>
+                            <option value="closed">Đóng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary" onclick="loadContacts()">Tìm</button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr><th>#</th><th>Họ tên</th><th>Email</th><th>Chủ đề</th><th>Trạng thái</th><th>Ngày gửi</th><th>Thao tác</th></tr>
+                                        </thead>
+                                        <tbody id="contactsBody"></tbody>
+                                    </table>
+                                </div>
+                                <nav><ul class="pagination justify-content-center" id="pagination"></ul></nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Modal -->
+                <div class="modal fade" id="detailModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Chi tiết liên hệ</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                            <div class="modal-body" id="detailBody"></div>
+                            <div class="modal-footer">
+                                <select id="modalStatus" class="form-select" style="width:auto">
+                                    <option value="new">Mới</option>
+                                    <option value="in_progress">Đang xử lý</option>
+                                    <option value="replied">Đã phản hồi</option>
+                                    <option value="closed">Đóng</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="updateContactStatus()">Cập nhật trạng thái</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer><div class="footer-area"><p>© 2026 BookStore Admin</p></div></footer>
+    </div>
+
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/metismenujs.min.js"></script>
+    <script src="assets/js/scripts.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        var currentPage = 1;
+        var currentContactId = null;
+
+        function getAdminId() {
+            try { return JSON.parse(localStorage.getItem('admin')).admin_id; } catch(e) { return 1; }
+        }
+
+        function statusBadge(s) {
+            var map = { new: 'primary', in_progress: 'warning', replied: 'info', closed: 'secondary' };
+            var labels = { new: 'Mới', in_progress: 'Đang xử lý', replied: 'Đã phản hồi', closed: 'Đóng' };
+            return '<span class="badge bg-' + (map[s]||'secondary') + '">' + (labels[s]||s) + '</span>';
+        }
+
+        function loadContacts(page) {
+            currentPage = page || 1;
+            var q = document.getElementById('searchInput').value;
+            var status = document.getElementById('statusFilter').value;
+            AdminAPI.contacts.list(q, currentPage, 10, status).then(function(res) {
+                if (!res.success) return;
+                var items = res.data.items;
+                var html = '';
+                items.forEach(function(c) {
+                    html += '<tr>' +
+                        '<td>' + c.contact_id + '</td>' +
+                        '<td>' + c.full_name + '</td>' +
+                        '<td>' + c.email + '</td>' +
+                        '<td>' + (c.subject || '-') + '</td>' +
+                        '<td>' + statusBadge(c.contact_status) + '</td>' +
+                        '<td>' + new Date(c.created_at).toLocaleDateString('vi') + '</td>' +
+                        '<td>' +
+                            '<button class="btn btn-sm btn-info" onclick="viewContact(' + c.contact_id + ')"><i class="fa-solid fa-eye"></i></button> ' +
+                            '<button class="btn btn-sm btn-danger" onclick="deleteContact(' + c.contact_id + ')"><i class="fa-solid fa-trash"></i></button>' +
+                        '</td></tr>';
+                });
+                document.getElementById('contactsBody').innerHTML = html || '<tr><td colspan="7" class="text-center">Không có liên hệ</td></tr>';
+
+                // Pagination
+                var p = res.data.pagination;
+                var pHtml = '';
+                for (var i = 1; i <= p.total_pages; i++) {
+                    pHtml += '<li class="page-item ' + (i === p.current_page ? 'active' : '') + '"><a class="page-link" href="#" onclick="loadContacts(' + i + ')">' + i + '</a></li>';
+                }
+                document.getElementById('pagination').innerHTML = pHtml;
+            });
+        }
+
+        function viewContact(id) {
+            currentContactId = id;
+            AdminAPI.contacts.detail(id).then(function(res) {
+                if (!res.success) return;
+                var c = res.data;
+                document.getElementById('detailBody').innerHTML =
+                    '<p><strong>Họ tên:</strong> ' + c.full_name + '</p>' +
+                    '<p><strong>Email:</strong> ' + c.email + '</p>' +
+                    '<p><strong>Chủ đề:</strong> ' + (c.subject || '-') + '</p>' +
+                    '<p><strong>Nội dung:</strong></p><div class="p-3 bg-light rounded">' + c.message + '</div>' +
+                    '<p class="mt-2"><strong>Trạng thái:</strong> ' + statusBadge(c.contact_status) + '</p>' +
+                    '<p><strong>Ngày gửi:</strong> ' + c.created_at + '</p>';
+                document.getElementById('modalStatus').value = c.contact_status;
+                new bootstrap.Modal(document.getElementById('detailModal')).show();
+            });
+        }
+
+        function updateContactStatus() {
+            var status = document.getElementById('modalStatus').value;
+            AdminAPI.contacts.updateStatus(currentContactId, status, getAdminId()).then(function(res) {
+                if (res.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
+                    loadContacts(currentPage);
+                    if (window.SRTdash) SRTdash.toast('Cập nhật thành công', 'success');
+                }
+            });
+        }
+
+        function deleteContact(id) {
+            if (!confirm('Xóa liên hệ này?')) return;
+            AdminAPI.contacts.remove(id).then(function(res) {
+                if (res.success) { loadContacts(currentPage); if (window.SRTdash) SRTdash.toast('Đã xóa', 'success'); }
+            });
+        }
+
+        loadContacts();
+    </script>
+</body>
+</html>

@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { Route, Routes, createRoutesFromElements, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { Route, createRoutesFromElements, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import './App.css'
 import MainLayout from './layout/MainLayout';

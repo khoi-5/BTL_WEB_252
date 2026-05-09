@@ -1,14 +1,17 @@
 <?php
 
 require_once __DIR__ . "/../models/User.php";
+require_once __DIR__ . "/../models/Section.php";
 
 class AdminController
 {
     private $userModel;
+    private $sectionModel;
 
     public function __construct($conn)
     {
         $this->userModel = new User($conn);
+        $this->sectionModel = new Section($conn);
     }
 
     public function getInfo()
@@ -192,6 +195,53 @@ class AdminController
             echo json_encode([
                 "success" => false,
                 "message" => "Không thể đổi mật khẩu."
+            ]);
+        }
+    }
+
+    public function add_flash_sale() {
+        $admin_id = $_GET["admin_id"] ?? null;
+        $admin = $this->userModel->findAdminById($admin_id);
+        if (!$admin) {
+            http_response_code(404);
+            echo json_encode([
+                "success" => false,
+                "message" => "Admin not found"
+            ]);
+            return;
+        }
+
+        $name = $_POST["name"] ?? null;
+        $desc = $_POST["desc"] ?? null;
+        $start_time = $_POST["start_time"] ?? null;
+        $end_time = $_POST["end_time"] ?? null;
+        
+        $is_active = isset($_POST["is_active"]) ? (int)$_POST["is_active"] : null; 
+
+        $image_file = $_FILES["image"] ?? null;
+        $image_name = $image_file ? $image_file['name'] : null;
+
+        if (!$name || !$desc || !$image_file || !$start_time || !$end_time || $is_active === null) {
+            http_response_code(400);
+            echo json_encode([
+                "success" => false,
+                "message" => "Please fill in all information."
+            ]);
+            return;
+        }
+
+        $result = $this->sectionModel->addFlashSale($name, $desc, $image_name, $start_time, $end_time, $is_active);
+
+        if ($result) {
+            echo json_encode([
+                "success" => true,
+                "message" => "Thêm flash sale thành công."
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode([
+                "success" => false,
+                "message" => "Không thể thêm flash sale."
             ]);
         }
     }

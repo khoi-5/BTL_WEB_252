@@ -1,0 +1,910 @@
+openapi: 3.0.0
+info:
+  title: BookStore API
+  version: 2.0.0
+  description: Complete API documentation for the BookStore e-commerce backend.
+servers:
+  - url: /api
+
+tags:
+  - name: Auth
+  - name: Customer Profile
+  - name: Admin Profile
+  - name: Admin – Customers
+  - name: Products
+  - name: Categories
+  - name: Orders
+  - name: Cart
+  - name: Contacts
+  - name: FAQs
+  - name: Site Settings
+  - name: Sections
+  - name: Flash Sales
+
+paths:
+  # ======================== AUTH ========================
+  /customer/login:
+    post:
+      tags: [Auth]
+      summary: Customer login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier, password]
+              properties:
+                identifier: { type: string, example: "customer1@gmail.com" }
+                password: { type: string, example: "customer123" }
+      responses:
+        '200': { description: Login successful }
+        '401': { description: Invalid credentials }
+
+  /admin/login:
+    post:
+      tags: [Auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: "admin1@store.com" }
+                password: { type: string, example: "admin123" }
+      responses:
+        '200': { description: Login successful }
+
+  /register:
+    post:
+      tags: [Auth]
+      summary: Customer registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, email, password, phone, shipping_address, receiver_name, receiver_phone]
+              properties:
+                full_name: { type: string }
+                email: { type: string }
+                password: { type: string }
+                phone: { type: string }
+                shipping_address: { type: string }
+                receiver_name: { type: string }
+                receiver_phone: { type: string }
+      responses:
+        '201': { description: Registration successful }
+
+  /auth/check-status:
+    get:
+      tags: [Auth]
+      summary: Check if customer is banned
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Status returned }
+
+  # ======================== CUSTOMER PROFILE ========================
+  /customer/info:
+    get:
+      tags: [Customer Profile]
+      summary: Get customer profile
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Profile data }
+
+  /customer/update:
+    put:
+      tags: [Customer Profile]
+      summary: Update customer info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id: { type: integer }
+                full_name: { type: string }
+                phone: { type: string }
+                shipping_address: { type: string }
+                receiver_name: { type: string }
+                receiver_phone: { type: string }
+      responses:
+        '200': { description: Updated }
+
+  /customer/change-password:
+    put:
+      tags: [Customer Profile]
+      summary: Change customer password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, old_password, new_password, confirm_password]
+              properties:
+                user_id: { type: integer }
+                old_password: { type: string }
+                new_password: { type: string }
+                confirm_password: { type: string }
+      responses:
+        '200': { description: Password changed }
+
+  /customer/upload-avatar:
+    post:
+      tags: [Customer Profile]
+      summary: Upload avatar image
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                user_id: { type: integer }
+                avatar: { type: string, format: binary }
+      responses:
+        '200': { description: Avatar uploaded }
+
+  # ======================== ADMIN PROFILE ========================
+  /admin/info:
+    get:
+      tags: [Admin Profile]
+      summary: Get admin profile
+      parameters:
+        - in: query
+          name: admin_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Admin profile data }
+
+  /admin/update:
+    put:
+      tags: [Admin Profile]
+      summary: Update admin info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admin_id: { type: integer }
+                full_name: { type: string }
+                phone: { type: string }
+      responses:
+        '200': { description: Updated }
+
+  /admin/change-password:
+    put:
+      tags: [Admin Profile]
+      summary: Change admin password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admin_id: { type: integer }
+                old_password: { type: string }
+                new_password: { type: string }
+                confirm_password: { type: string }
+      responses:
+        '200': { description: Password changed }
+
+  # ======================== ADMIN: CUSTOMERS ========================
+  /admin/customers:
+    get:
+      tags: [Admin – Customers]
+      summary: List all customers (paginated)
+      parameters:
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: page, schema: { type: integer, default: 1 } }
+        - { in: query, name: limit, schema: { type: integer, default: 10 } }
+      responses:
+        '200': { description: List of customers }
+
+  /admin/customers/status:
+    put:
+      tags: [Admin – Customers]
+      summary: Ban/unban customer
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: integer, enum: [0, 1] }
+                admin_id: { type: integer }
+      responses:
+        '200': { description: Status updated }
+
+  /admin/customers/reset-password:
+    put:
+      tags: [Admin – Customers]
+      summary: Reset customer password to 123456
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+                admin_id: { type: integer }
+      responses:
+        '200': { description: Password reset }
+
+  # ======================== PRODUCTS ========================
+  /products:
+    get:
+      tags: [Products]
+      summary: List products (paginated, searchable)
+      parameters:
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: page, schema: { type: integer, default: 1 } }
+        - { in: query, name: limit, schema: { type: integer, default: 10 } }
+      responses:
+        '200': { description: Product list }
+    post:
+      tags: [Products]
+      summary: Create product + version
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_name: { type: string }
+                brand: { type: string }
+                description: { type: string }
+                sku: { type: string }
+                version_name: { type: string }
+                format_type: { type: string }
+                language: { type: string }
+                price: { type: number }
+                stock_quantity: { type: integer }
+      responses:
+        '201': { description: Product created }
+
+  /products/detail:
+    get:
+      tags: [Products]
+      summary: Get product details
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Product details }
+
+  /products/update:
+    put:
+      tags: [Products]
+      summary: Update product
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_name: { type: string }
+                sku: { type: string }
+                version_name: { type: string }
+                price: { type: number }
+                stock_quantity: { type: integer }
+      responses:
+        '200': { description: Product updated }
+
+  /products/delete:
+    delete:
+      tags: [Products]
+      summary: Delete product version
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Product deleted }
+
+  /products/upload-image:
+    post:
+      tags: [Products]
+      summary: Upload product image
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image: { type: string, format: binary }
+      responses:
+        '200': { description: Image uploaded }
+
+  # ======================== CATEGORIES ========================
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List all categories (flat)
+      responses:
+        '200': { description: Category list }
+
+  /categories/tree:
+    get:
+      tags: [Categories]
+      summary: Category tree (nested)
+      responses:
+        '200': { description: Nested category tree }
+
+  /categories/products:
+    get:
+      tags: [Categories]
+      summary: Products by category
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+        - { in: query, name: page, schema: { type: integer, default: 1 } }
+        - { in: query, name: limit, schema: { type: integer, default: 12 } }
+      responses:
+        '200': { description: Products in category }
+
+  /admin/categories:
+    post:
+      tags: [Categories]
+      summary: Create category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_name: { type: string }
+                parent_category_id: { type: integer, nullable: true }
+      responses:
+        '201': { description: Category created }
+
+  /admin/categories/update:
+    put:
+      tags: [Categories]
+      summary: Update category
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_name: { type: string }
+                parent_category_id: { type: integer, nullable: true }
+      responses:
+        '200': { description: Category updated }
+
+  /admin/categories/delete:
+    delete:
+      tags: [Categories]
+      summary: Delete category
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Category deleted }
+
+  # ======================== ORDERS ========================
+  /orders:
+    get:
+      tags: [Orders]
+      summary: Admin list all orders
+      parameters:
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: page, schema: { type: integer, default: 1 } }
+        - { in: query, name: limit, schema: { type: integer, default: 10 } }
+      responses:
+        '200': { description: Order list }
+
+  /orders/detail:
+    get:
+      tags: [Orders]
+      summary: Order detail
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Order details }
+
+  /orders/create-from-cart:
+    post:
+      tags: [Orders]
+      summary: Create order from cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+                shipping_address: { type: string }
+                receiver_name: { type: string }
+                receiver_phone: { type: string }
+                note: { type: string }
+      responses:
+        '201': { description: Order created }
+
+  /orders/customer:
+    get:
+      tags: [Orders]
+      summary: Customer order history
+      parameters:
+        - { in: query, name: customer_id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Customer orders }
+
+  /orders/customer-confirm-payment:
+    put:
+      tags: [Orders]
+      summary: Customer confirm payment
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+                payment_method: { type: string, enum: [cod, bank_transfer, credit_card] }
+      responses:
+        '200': { description: Payment confirmed }
+
+  /orders/customer-cancel:
+    put:
+      tags: [Orders]
+      summary: Customer cancel order
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+      responses:
+        '200': { description: Order cancelled }
+
+  /orders/customer-confirm-delivered:
+    put:
+      tags: [Orders]
+      summary: Customer confirm delivery
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+      responses:
+        '200': { description: Delivery confirmed }
+
+  /orders/move-to-shipping:
+    put:
+      tags: [Orders]
+      summary: Admin move order to shipping
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admin_id: { type: integer }
+      responses:
+        '200': { description: Moved to shipping }
+
+  # ======================== CART ========================
+  /cart:
+    get:
+      tags: [Cart]
+      summary: List cart items
+      parameters:
+        - { in: query, name: customer_id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Cart items }
+
+  /cart/add:
+    post:
+      tags: [Cart]
+      summary: Add item to cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+                version_id: { type: integer }
+                quantity: { type: integer, default: 1 }
+      responses:
+        '200': { description: Item added }
+
+  /cart/update:
+    put:
+      tags: [Cart]
+      summary: Update cart item quantity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+                cart_item_id: { type: integer }
+                quantity: { type: integer }
+      responses:
+        '200': { description: Cart updated }
+
+  /cart/remove:
+    delete:
+      tags: [Cart]
+      summary: Remove cart item
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+                cart_item_id: { type: integer }
+      responses:
+        '200': { description: Item removed }
+
+  /cart/clear:
+    delete:
+      tags: [Cart]
+      summary: Clear entire cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id: { type: integer }
+      responses:
+        '200': { description: Cart cleared }
+
+  # ======================== CONTACTS ========================
+  /contact:
+    post:
+      tags: [Contacts]
+      summary: Guest submit contact form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, email, message]
+              properties:
+                full_name: { type: string }
+                email: { type: string }
+                subject: { type: string }
+                message: { type: string }
+      responses:
+        '201': { description: Contact submitted }
+
+  /admin/contacts:
+    get:
+      tags: [Contacts]
+      summary: Admin list contacts
+      parameters:
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: status, schema: { type: string, enum: [new, in_progress, replied, closed] } }
+        - { in: query, name: page, schema: { type: integer, default: 1 } }
+        - { in: query, name: limit, schema: { type: integer, default: 10 } }
+      responses:
+        '200': { description: Contact list }
+
+  /admin/contacts/detail:
+    get:
+      tags: [Contacts]
+      summary: Admin contact detail
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Contact detail }
+
+  /admin/contacts/status:
+    put:
+      tags: [Contacts]
+      summary: Admin update contact status
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [new, in_progress, replied, closed] }
+                admin_id: { type: integer }
+      responses:
+        '200': { description: Status updated }
+
+  /admin/contacts/delete:
+    delete:
+      tags: [Contacts]
+      summary: Admin delete contact
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Contact deleted }
+
+  # ======================== FAQS ========================
+  /faqs:
+    get:
+      tags: [FAQs]
+      summary: Public list active FAQs
+      parameters:
+        - { in: query, name: category, schema: { type: string } }
+      responses:
+        '200': { description: FAQ list }
+
+  /faqs/categories:
+    get:
+      tags: [FAQs]
+      summary: Public list FAQ categories
+      responses:
+        '200': { description: Category list }
+
+  /admin/faqs:
+    get:
+      tags: [FAQs]
+      summary: Admin list FAQs (paginated)
+      parameters:
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: page, schema: { type: integer, default: 1 } }
+        - { in: query, name: limit, schema: { type: integer, default: 10 } }
+      responses:
+        '200': { description: FAQ list }
+    post:
+      tags: [FAQs]
+      summary: Admin create FAQ
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question, answer]
+              properties:
+                question: { type: string }
+                answer: { type: string }
+                category: { type: string }
+                is_active: { type: integer, default: 1 }
+                admin_id: { type: integer }
+      responses:
+        '201': { description: FAQ created }
+
+  /admin/faqs/detail:
+    get:
+      tags: [FAQs]
+      summary: Admin FAQ detail
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: FAQ detail }
+
+  /admin/faqs/update:
+    put:
+      tags: [FAQs]
+      summary: Admin update FAQ
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question: { type: string }
+                answer: { type: string }
+                category: { type: string }
+                is_active: { type: integer }
+      responses:
+        '200': { description: FAQ updated }
+
+  /admin/faqs/delete:
+    delete:
+      tags: [FAQs]
+      summary: Admin delete FAQ
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: FAQ deleted }
+
+  # ======================== SITE SETTINGS ========================
+  /settings:
+    get:
+      tags: [Site Settings]
+      summary: Public get settings
+      parameters:
+        - { in: query, name: group, schema: { type: string } }
+      responses:
+        '200': { description: Settings key-value map }
+
+  /admin/settings:
+    get:
+      tags: [Site Settings]
+      summary: Admin list all settings (detailed)
+      responses:
+        '200': { description: Settings with admin info }
+
+  /admin/settings/grouped:
+    get:
+      tags: [Site Settings]
+      summary: Admin grouped settings
+      responses:
+        '200': { description: Settings grouped by category }
+
+  /admin/settings/update:
+    put:
+      tags: [Site Settings]
+      summary: Admin bulk update settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admin_id: { type: integer }
+                settings:
+                  type: object
+                  example: { "site_name": "New Name", "contact_email": "x@y.com" }
+      responses:
+        '200': { description: Settings updated }
+
+  # ======================== SECTIONS ========================
+  /sections:
+    get:
+      tags: [Sections]
+      summary: Public active product sections
+      responses:
+        '200': { description: Active sections }
+
+  /admin/sections:
+    get:
+      tags: [Sections]
+      summary: Admin list all sections
+      responses:
+        '200': { description: All sections }
+    post:
+      tags: [Sections]
+      summary: Admin create section (multipart)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                status: { type: integer }
+                image: { type: string, format: binary }
+      responses:
+        '201': { description: Section created }
+
+  /admin/sections/detail:
+    get:
+      tags: [Sections]
+      summary: Admin section detail
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Section detail }
+
+  /admin/sections/update:
+    post:
+      tags: [Sections]
+      summary: Admin update section (multipart)
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                status: { type: integer }
+                image: { type: string, format: binary }
+      responses:
+        '200': { description: Section updated }
+
+  /admin/sections/delete:
+    delete:
+      tags: [Sections]
+      summary: Admin delete section
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Section deleted }
+
+  # ======================== FLASH SALES ========================
+  /flash-sales:
+    get:
+      tags: [Flash Sales]
+      summary: Public active flash sales with products
+      responses:
+        '200': { description: Active flash sales }
+
+  /admin/flash-sales:
+    get:
+      tags: [Flash Sales]
+      summary: Admin list all flash sales
+      responses:
+        '200': { description: All flash sales }
+    post:
+      tags: [Flash Sales]
+      summary: Admin create flash sale (multipart)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                start_time: { type: string, format: date-time }
+                end_time: { type: string, format: date-time }
+                is_active: { type: integer }
+                image: { type: string, format: binary }
+      responses:
+        '201': { description: Flash sale created }
+
+  /admin/flash-sales/detail:
+    get:
+      tags: [Flash Sales]
+      summary: Admin flash sale detail with products
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Flash sale detail }
+
+  /admin/flash-sales/update:
+    post:
+      tags: [Flash Sales]
+      summary: Admin update flash sale (multipart)
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                start_time: { type: string, format: date-time }
+                end_time: { type: string, format: date-time }
+                is_active: { type: integer }
+                image: { type: string, format: binary }
+      responses:
+        '200': { description: Flash sale updated }
+
+  /admin/flash-sales/delete:
+    delete:
+      tags: [Flash Sales]
+      summary: Admin delete flash sale
+      parameters:
+        - { in: query, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Flash sale deleted }

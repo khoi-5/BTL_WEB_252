@@ -5,6 +5,7 @@ export const UserData = z.object({
   full_name: z.string(),
   email: z.string().email(),
   phone: z.string().nullable().optional(),
+  avatar: z.string().nullable().optional(),
 
   role: z.enum(["admin", "customer"]),
 

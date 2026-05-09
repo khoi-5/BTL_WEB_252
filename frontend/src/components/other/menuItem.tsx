@@ -1,7 +1,8 @@
-import { ChevronRightIcon, FileIcon, FolderIcon } from "lucide-react"
+import { ChevronRightIcon, FileIcon } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
     Collapsible,
     CollapsibleContent,
@@ -9,51 +10,40 @@ import {
 } from "@/components/ui/collapsible"
 
 
-type FileTreeItem = { name: string } | { name: string; items: FileTreeItem[] }
+type FileTreeItem = { name: string; to: string } | { name: string; items: FileTreeItem[] }
 
 export function MenuItem() {
     const fileTree: FileTreeItem[] = [
         {
             name: "HOME",
             items: [
-                {
-                    name: "ui",
-                    items: [
-                        { name: "button.tsx" },
-                        { name: "card.tsx" },
-                        { name: "dialog.tsx" },
-                        { name: "input.tsx" },
-                        { name: "select.tsx" },
-                        { name: "table.tsx" },
-                    ],
-                },
-                { name: "login-form.tsx" },
-                { name: "register-form.tsx" },
+                { name: "Storefront", to: "/" },
+                { name: "Browse Products", to: "/products" },
             ],
         },
         {
             name: "ABOUT US",
-            items: [{ name: "utils.ts" }, { name: "cn.ts" }, { name: "api.ts" }],
+            items: [
+                { name: "Our Story", to: "/about" },
+                { name: "Contact Support", to: "/contact" },
+            ],
         },
         {
             name: "PRODUCTS",
             items: [
-                { name: "use-media-query.ts" },
-                { name: "use-debounce.ts" },
-                { name: "use-local-storage.ts" },
+                { name: "All Products", to: "/products" },
+                { name: "Flash Sales", to: "/products" },
+                { name: "Collections", to: "/products" },
+                { name: "Cart", to: "/cart" },
             ],
         },
         {
             name: "FAQ",
-            items: [{ name: "index.d.ts" }, { name: "api.d.ts" }],
+            items: [{ name: "FAQ Center", to: "/faq" }],
         },
         {
             name: "CONTACT",
-            items: [
-                { name: "favicon.ico" },
-                { name: "logo.svg" },
-                { name: "images" },
-            ],
+            items: [{ name: "Send Message", to: "/contact" }],
         },
     ]
 
@@ -83,12 +73,15 @@ export function MenuItem() {
         return (
             <Button
                 key={fileItem.name}
+                asChild
                 variant="link"
                 size="sm"
                 className="w-full justify-start gap-2 text-foreground"
             >
-                <FileIcon />
-                <span>{fileItem.name}</span>
+                <Link to={fileItem.to}>
+                    <FileIcon />
+                    <span>{fileItem.name}</span>
+                </Link>
             </Button>
         )
     }

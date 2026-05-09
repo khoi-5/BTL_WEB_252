@@ -19,7 +19,7 @@ function Cart() {
   const clearCart = useCartStore((s) => s.clearCart);
 
   const formatPrice = (price: number) => {
-    return Number(price).toLocaleString("vi-VN") + " VNĐ";
+    return Number(price).toLocaleString("vi-VN") + " VND";
   };
 
   useEffect(() => {
@@ -34,11 +34,11 @@ function Cart() {
     const res = await updateQuantity(user.user_id, cartItemId, quantity);
 
     if (!res.success) {
-      showToast(res.message || "Cập nhật số lượng thất bại.", "error");
+      showToast(res.message || "Could not update quantity.", "error");
       return;
     }
 
-    showToast("Đã cập nhật giỏ hàng.", "success");
+    showToast("Cart updated.", "success");
   };
 
   const handleRemove = async (cartItemId: number) => {
@@ -47,11 +47,11 @@ function Cart() {
     const res = await removeItem(user.user_id, cartItemId);
 
     if (!res.success) {
-      showToast(res.message || "Xóa sản phẩm thất bại.", "error");
+      showToast(res.message || "Could not remove this product.", "error");
       return;
     }
 
-    showToast("Đã xóa sản phẩm khỏi giỏ hàng.", "success");
+    showToast("Product removed from cart.", "success");
   };
 
   const handleClear = async () => {
@@ -60,11 +60,11 @@ function Cart() {
     const res = await clearCart(user.user_id);
 
     if (!res.success) {
-      showToast(res.message || "Xóa giỏ hàng thất bại.", "error");
+      showToast(res.message || "Could not clear the cart.", "error");
       return;
     }
 
-    showToast("Đã xóa toàn bộ giỏ hàng.", "success");
+    showToast("Cart cleared.", "success");
   };
   
 
@@ -72,7 +72,7 @@ function Cart() {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow p-8">
-          Vui lòng đăng nhập để xem giỏ hàng.
+          Please log in to view your cart.
         </div>
       </div>
     );
@@ -86,12 +86,12 @@ function Cart() {
     const navigate = useNavigate();
     const handleCheckout = async () => {
     if (!user?.user_id) {
-        showToast("Vui lòng đăng nhập để thanh toán.", "error");
+        showToast("Please log in to checkout.", "error");
         return;
     }
 
     if (items.length === 0) {
-        showToast("Giỏ hàng đang trống.", "error");
+        showToast("Your cart is empty.", "error");
         return;
     }
 
@@ -103,11 +103,11 @@ function Cart() {
         });
 
         if (!res.success) {
-        showToast(res.message || "Tạo đơn hàng thất bại.", "error");
+        showToast(res.message || "Could not create the order.", "error");
         return;
         }
 
-        showToast("Tạo đơn hàng thành công.", "success");
+        showToast("Order created successfully.", "success");
 
         await loadCart(user.user_id);
 
@@ -116,7 +116,7 @@ function Cart() {
         }, 600);
     } catch (err: any) {
         showToast(
-        err.response?.data?.message || "Không kết nối được server.",
+        err.response?.data?.message || "Could not connect to the server.",
         "error"
         );
     }
@@ -126,25 +126,25 @@ function Cart() {
     <div className="min-h-screen bg-slate-100 px-4 py-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Giỏ hàng</h1>
+          <h1 className="text-3xl font-bold">Cart</h1>
 
           {items.length > 0 && (
             <button
               onClick={handleClear}
               className="bg-red-600 text-white px-4 py-2 rounded-lg"
             >
-              Xóa giỏ hàng
+              Clear Cart
             </button>
           )}
         </div>
 
         {loading ? (
           <div className="bg-white rounded-xl shadow p-8 text-center">
-            Đang tải giỏ hàng...
+            Loading cart...
           </div>
         ) : items.length === 0 ? (
           <div className="bg-white rounded-xl shadow p-8 text-center">
-            Giỏ hàng đang trống.
+            Your cart is empty.
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
@@ -171,15 +171,15 @@ function Cart() {
                     </p>
 
                     <p className="mt-1">
-                      <b>Phiên bản:</b> {item.version_name}
+                      <b>Version:</b> {item.version_name}
                     </p>
 
                     <p className="mt-1">
-                      <b>Giá:</b> {formatPrice(item.price)}
+                      <b>Price:</b> {formatPrice(item.price)}
                     </p>
 
                     <p className="mt-1">
-                      <b>Tạm tính:</b> {formatPrice(item.subtotal)}
+                      <b>Subtotal:</b> {formatPrice(item.subtotal)}
                     </p>
 
                     <div className="flex items-center gap-2 mt-4">
@@ -214,7 +214,7 @@ function Cart() {
                         onClick={() => handleRemove(item.cart_item_id)}
                         className="ml-4 bg-red-600 text-white px-4 py-1 rounded"
                       >
-                        Xóa
+                        Remove
                       </button>
                     </div>
                   </div>
@@ -223,21 +223,21 @@ function Cart() {
             </div>
 
             <div className="bg-white rounded-xl shadow p-6 h-fit">
-              <h2 className="text-2xl font-bold mb-4">Tổng đơn hàng</h2>
+              <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
 
 
             <div className="flex justify-between mb-3">
-                <span>Số loại sản phẩm:</span>
+                <span>Product types:</span>
                 <b>{items.length}</b>
             </div>
 
             <div className="flex justify-between mb-3">
-                <span>Tổng số lượng:</span>
+                <span>Total quantity:</span>
                 <b>{totalQuantity}</b>
             </div>
 
               <div className="flex justify-between mb-6">
-                <span>Tổng tiền:</span>
+                <span>Total:</span>
                 <b>{formatPrice(totalAmount)}</b>
               </div>
 
@@ -245,7 +245,7 @@ function Cart() {
                     onClick={handleCheckout}
                     className="w-full bg-blue-600 text-white py-3 rounded-lg"
                     >
-                    Thanh toán
+                    Checkout
                 </button>
             </div>
           </div>
