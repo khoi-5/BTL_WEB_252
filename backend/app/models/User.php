@@ -324,6 +324,20 @@ class User
         ];
     }
 
+    // ban nếu nhập sai mật khẩu quá nhiều lần 
+    public function lockCustomerBySystem($customerId)
+    {
+        $stmt = $this->conn->prepare("
+            UPDATE customers
+            SET customer_status = 0
+            WHERE customer_id = ?
+        ");
+
+        return $stmt->execute([
+            (int)$customerId
+        ]);
+    }
+
     // Update user avatar
     public function updateAvatar($userId, $avatarPath)
     {

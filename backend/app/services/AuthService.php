@@ -146,7 +146,7 @@ class AuthService
 
         $user = $this->userModel->findByEmailOrPhone($identifier);
 
-        if (!$user || !password_verify($password, $user["password_hash"])) {
+        if (!$user) {
             throw new Exception("Sai tài khoản hoặc mật khẩu");
         }
 
@@ -159,6 +159,34 @@ class AuthService
         if ((int)$customer["customer_status"] === 0) {
             throw new Exception("Tài khoản của bạn đã bị vô hiệu hóa");
         }
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $attemptKey = "customer_login_attempt_" . $user["user_id"];
+
+        if (!isset($_SESSION[$attemptKey])) {
+            $_SESSION[$attemptKey] = 0;
+        }
+
+        if (!password_verify($password, $user["password_hash"])) {
+            $_SESSION[$attemptKey]++;
+
+            $remaining = 5 - $_SESSION[$attemptKey];
+
+            if ($_SESSION[$attemptKey] >= 5) {
+                $this->userModel->lockCustomerBySystem($customer["customer_id"]);
+
+                unset($_SESSION[$attemptKey]);
+
+                throw new Exception("Tài khoản của bạn đã bị khóa do nhập sai mật khẩu 5 lần");
+            }
+
+            throw new Exception("Sai mật khẩu. Bạn còn {$remaining} lần đăng nhập");
+        }
+
+        $_SESSION[$attemptKey] = 0;
 
         unset($user["password_hash"]);
         $user["role"] = "customer";

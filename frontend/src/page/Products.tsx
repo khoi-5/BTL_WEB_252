@@ -657,7 +657,7 @@ function Products() {
                     <h2 className="m-0 text-3xl font-extrabold text-slate-950">{selectedProduct.product_name}</h2>
                     <p className="mt-2 text-sm text-slate-500">SKU: {selectedProduct.sku}</p>
                   </div>
-                  <Button variant="ghost" onClick={() => setSelectedProduct(null)}>Dong</Button>
+                  <Button variant="ghost" onClick={() => setSelectedProduct(null)}>Close</Button>
                 </div>
 
                 <p className="text-3xl font-extrabold text-blue-700">{formatPrice(selectedProduct.price)}</p>

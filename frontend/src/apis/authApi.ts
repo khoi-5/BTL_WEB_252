@@ -2,6 +2,11 @@ import axios from "axios";
 
 const API_BASE = "http://localhost:8000/api";
 
+const api = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+});
+
 export type LoginPayload = {
   identifier: string;
   password: string;
@@ -18,22 +23,22 @@ export type RegisterPayload = {
 };
 
 export const customerLoginApi = async (payload: LoginPayload) => {
-  const res = await axios.post(`${API_BASE}/customer/login`, payload);
+  const res = await api.post("/customer/login", payload);
   return res.data;
 };
 
 export const customerRegisterApi = async (payload: RegisterPayload) => {
-  const res = await axios.post(`${API_BASE}/register`, payload);
+  const res = await api.post("/register", payload);
   return res.data;
 };
 
 export const adminLoginApi = async (payload: LoginPayload) => {
-  const res = await axios.post(`${API_BASE}/admin/login`, payload);
+  const res = await api.post("/admin/login", payload);
   return res.data;
 };
 
 export const checkCustomerStatusApi = async (userId: number) => {
-  const res = await axios.get(`${API_BASE}/auth/check-status`, {
+  const res = await api.get("/auth/check-status", {
     params: {
       user_id: userId,
     },
